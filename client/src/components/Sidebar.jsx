@@ -7,7 +7,7 @@ import { ChatContext } from "../../context/ChatContext"
 const Sidebar = () => {
 
   const { getUsers, users, selectedUser, setSelectedUser,
-    unseenMessages, setUnseenMessages } = useContext(ChatContext)
+    unseenMessages, setUnseenMessages, usersLoading } = useContext(ChatContext)
 
   const { logout, onlineUser } = useContext(AuthContext)
 
@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     getUsers()
-  }, [getUsers, onlineUser])
+  }, [getUsers])
   return (
     <div className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll
     text-white ${selectedUser ? "max-md:hidden" : ''}`}>
@@ -45,6 +45,15 @@ const Sidebar = () => {
         </div>
       </div>
       <div className="flex flex-col">
+        {usersLoading && Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="flex items-center gap-2 p-2 pl-4 animate-pulse">
+            <div className="w-[35px] aspect-square rounded-full bg-white/20" />
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-24 rounded bg-white/20" />
+              <div className="h-2 w-12 rounded bg-white/10" />
+            </div>
+          </div>
+        ))}
         {filteredUsers.map((user, index) => (
           <div onClick={() => {
             setSelectedUser(user); setUnseenMessages(prev =>

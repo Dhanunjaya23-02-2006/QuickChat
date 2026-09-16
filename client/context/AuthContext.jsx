@@ -10,6 +10,7 @@ axios.defaults.baseURL = backendUrl;
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(() => Boolean(localStorage.getItem("token")));
     const [onlineUser, setOnlineUser] = useState([]);
     const [socket, setSocket] = useState(null);
 
@@ -56,6 +57,8 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             setAuthUser(null);
             toast.error(error.response?.data?.message || error.message);
+        } finally {
+            setAuthLoading(false);
         }
     }, [connectSocket]);
 
@@ -64,11 +67,11 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        const timer = setTimeout(() => {
+        const authCheck = setTimeout(() => {
             void checkAuth();
         }, 0);
 
-        return () => clearTimeout(timer);
+        return () => clearTimeout(authCheck);
     }, [token, checkAuth]);
 
     const login = useCallback(async (state, credentials) => {
@@ -117,12 +120,13 @@ export const AuthProvider = ({ children }) => {
     const value = useMemo(() => ({
         axios,
         authUser,
+        authLoading,
         onlineUser,
         socket,
         login,
         logout,
         updateProfile,
-    }), [authUser, onlineUser, socket, login, logout, updateProfile]);
+    }), [authUser, authLoading, onlineUser, socket, login, logout, updateProfile]);
 
     return (
         <AuthContext.Provider value={value}>
